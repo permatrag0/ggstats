@@ -1,0 +1,15 @@
+FROM golang:1.25 AS builder
+
+WORKDIR /app
+COPY . .
+RUN go mod tidy
+
+WORKDIR /app/players/cmd/main
+RUN go build -o /app/players/players .
+
+FROM debian:bookworm-slim
+WORKDIR /app
+COPY --from=builder /app/players/players .
+
+EXPOSE 8082
+CMD ["./players"]
