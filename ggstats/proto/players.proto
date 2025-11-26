@@ -1,0 +1,25 @@
+syntax = "proto3";
+package players.v1;
+option go_package = "ggstats.com/proto/players;playerspb";
+
+message PlayerResults {
+    int32 scorep1 = 1;
+    int32 scorep2 = 2;
+
+    string id = 3;
+    string gamertag = 4;
+    string region = 5;
+    string sponsor = 6;
+}
+
+message GetPlayerRequest {
+    string id = 1;
+}
+
+message GetPlayerResponse {
+    PlayerResults player = 1;
+}
+
+service PlayersService {
+    rpc GetPlayer(GetPlayerRequest) returns (GetPlayerResponse);
+}

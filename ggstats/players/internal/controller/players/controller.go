@@ -4,39 +4,58 @@ import (
 	"context"
 	"errors"
 
-	matchesModel "ggstats.com/matches/pkg/model"
 	metadataModel "ggstats.com/metadata/pkg"
-	"ggstats.com/players/internal/gateway"
-	"ggstats.com/players/pkg/model"
+	playersModel "ggstats.com/players/pkg/model"
+	metadatapb "ggstats.com/proto/metadata"
 )
 
 var ErrNotFound = errors.New("players metadata not found")
 
-type matchesGateway interface {
-	// GetAggregatedRating(ctx context.Context, recordID ratingModel.RecordID, recordType ratingModel.RecordType) (float64, error)
-	PutMatch(ctx context.Context, recordID matchesModel.RecordID, recordType matchesModel.RecordType, matches *matchesModel.Matches) error
-}
-
+// metadataGateway is what our controller expects from any metadata client.
 type metadataGateway interface {
-	Get(ctx context.Context, id string) (*metadataModel.Metadata, error)
+	Get(ctx context.Context, id string) (*metadatapb.Metadata, error)
 }
 
+// matchesGateway is kept here for future use; currently unused.
+type matchesGateway interface {
+	// e.g. later: GetMatches(ctx context.Context, recordID, recordType string) (...)
+}
+
+// Controller coordinates calls to metadata (and later matches)
+// to build PlayerResults.
 type Controller struct {
 	matchesGateway  matchesGateway
 	metadataGateway metadataGateway
 }
 
-func New(matchesGateway matchesGateway, metametadataGateway metadataGateway) *Controller {
-	return &Controller{matchesGateway, metametadataGateway}
+// New constructs a new Controller.
+// Even if matchesGateway is nil for now, we keep it in the signature
+// so we can later plug matches in without breaking callers.
+func New(matchesGateway matchesGateway, metadataGateway metadataGateway) *Controller {
+	return &Controller{
+		matchesGateway:  matchesGateway,
+		metadataGateway: metadataGateway,
+	}
 }
 
-func (c *Controller) Get(ctx context.Context, id string) (*model.PlayerResults, error) {
-	metadata, err := c.metadataGateway.Get(ctx, id)
-	if err != nil && errors.Is(err, gateway.ErrNotFound) {
-		return nil, ErrNotFound
-	} else if err != nil {
+// Get builds a PlayerResults for the given id by calling the metadata service via gRPC.
+func (c *Controller) Get(ctx context.Context, id string) (*playersModel.PlayerResults, error) {
+	m, err := c.metadataGateway.Get(ctx, id)
+	if err != nil {
+		// TODO: inspect gRPC status and map NOT_FOUND to ErrNotFound if you want
 		return nil, err
 	}
-	details := &model.PlayerResults{Metadata: *metadata}
-	return details, nil
+
+	// Map gRPC metadata → the metadata model used inside PlayerResults
+	md := metadataModel.Metadata{
+		ID:       m.GetId(),
+		Gamertag: m.GetGamertag(),
+		Region:   m.GetRegion(),
+		Sponsor:  m.GetSponsor(),
+	}
+
+	return &playersModel.PlayerResults{
+		Metadata: md,
+		// Scorep1 / Scorep2 left nil for now until matches is wired
+	}, nil
 }

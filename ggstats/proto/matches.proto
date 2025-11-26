@@ -1,0 +1,33 @@
+syntax = "proto3";
+package metadata.v1;
+option go_package = "ggstats.com/proto/matches;matchespb";
+
+message Match {
+  string record_id   = 1;
+  string record_type = 2;
+  string tournament  = 3;
+  string player1     = 4;
+  string player2     = 5;
+  int32  scorep1     = 6;
+  int32  scorep2     = 7;
+}
+
+message GetMatchesRequest {
+    string record_id = 1;
+    string record_type = 2;
+}
+
+message GetMatchesResponse {
+    repeated Match matches = 1;
+}
+
+message PutMatchRequest {
+    Match match = 1;
+}
+
+message PutMatchResponse {}
+
+service MatchesService {
+    rpc GetMatches(GetMatchesRequest) returns (GetMatchesResponse);
+    rpc PutMatch(PutMatchRequest) returns (PutMatchResponse);
+}
