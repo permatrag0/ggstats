@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matches
+  namespace: ggstats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matches
+  template:
+    metadata:
+      labels:
+        app: matches
+    spec:
+      containers:
+      - name: matches
+        image: ggstats-matches:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 50052
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matches
+  namespace: ggstats
+spec:
+  type: ClusterIP
+  selector:
+    app: matches
+  ports:
+  - name: grpc
+    port: 50052
+    targetPort: 50052

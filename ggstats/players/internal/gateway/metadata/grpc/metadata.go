@@ -13,7 +13,7 @@ type Client struct {
 }
 
 func New(address string) (*Client, error) {
-	conn, err := grpc.Dial(address, grpc.WithInsecure()) // for local dev; use TLS in real setups
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}

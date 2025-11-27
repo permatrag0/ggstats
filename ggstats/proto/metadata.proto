@@ -1,31 +1,33 @@
 syntax = "proto3";
+
 package metadata.v1;
+
 option go_package = "ggstats.com/proto/metadata;metadatapb";
 
 message Metadata {
-    string id = 1;
-    string gamertag = 2;
-    string region = 3;
-    string sponsor = 4;
+  string id       = 1;
+  string gamertag = 2;
+  string region   = 3;
+  string sponsor  = 4;
 }
 
 message GetMetadataRequest {
-    string id = 1;
+  string id = 1;
 }
 
 message GetMetadataResponse {
-    Metadata metadata = 1;
+  Metadata metadata = 1;
 }
 
 message CreateMetadataRequest {
-    Metadata metadata = 1;
+  Metadata metadata = 1;
 }
 
 message CreateMetadataResponse {
-    Metadata metadata = 1;
+  Metadata metadata = 1;
 }
 
 service MetadataService {
-    rpc GetMetadata(GetMetadataRequest) returns (GetMetadataResponse);
-    rpc CreateMetadata(CreateMetadataRequest) returns (CreateMetadataResponse);
+  rpc GetMetadata(GetMetadataRequest) returns (GetMetadataResponse);
+  rpc CreateMetadata(CreateMetadataRequest) returns (CreateMetadataResponse);
 }

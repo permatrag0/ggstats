@@ -1,4 +1,3 @@
-// metadata/cmd/grpc/main.go
 package main
 
 import (
@@ -28,7 +27,6 @@ func newMetadataServer(ctrl *metadata.Controller) *metadataServer {
 func (s *metadataServer) GetMetadata(ctx context.Context, req *metadatapb.GetMetadataRequest) (*metadatapb.GetMetadataResponse, error) {
 	m, err := s.ctrl.Get(ctx, req.GetId())
 	if err != nil {
-		// you can map your domain errors to gRPC status codes here
 		return nil, err
 	}
 
@@ -69,7 +67,6 @@ func main() {
 	port := flag.String("port", "50051", "gRPC listen port")
 	flag.Parse()
 
-	// Use your existing in-memory repository + controller
 	repo := memoryrepo.New()
 	ctrl := metadata.New(repo)
 
@@ -81,10 +78,10 @@ func main() {
 	grpcServer := grpc.NewServer()
 	metadatapb.RegisterMetadataServiceServer(grpcServer, newMetadataServer(ctrl))
 
-	// optional, but handy for local debugging with tools like grpcurl
+	// Helpful for debugging with grpcurl
 	reflection.Register(grpcServer)
 
-	log.Printf("Metadata gRPC server listening on %s", *port)
+	log.Printf("Metadata gRPC server listening on :%s", *port)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

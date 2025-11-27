@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: players
+  namespace: ggstats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: players
+  template:
+    metadata:
+      labels:
+        app: players
+    spec:
+      containers:
+      - name: players
+        image: ggstats-players:latest
+        imagePullPolicy: Never
+        env:
+        - name: METADATA_GRPC_ADDR
+          value: "metadata.ggstats.svc.cluster.local:50051"
+        - name: MATCHES_GRPC_ADDR
+          value: "matches.ggstats.svc.cluster.local:50052"
+        ports:
+        - containerPort: 50053
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: players
+  namespace: ggstats
+spec:
+  type: LoadBalancer   
+  selector:
+    app: players
+  ports:
+  - port: 50053
+    targetPort: 50053
+    protocol: TCP
+    nodePort: 30053      # <== expuesto

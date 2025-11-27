@@ -1,5 +1,7 @@
 syntax = "proto3";
-package metadata.v1;
+
+package matches.v1;
+
 option go_package = "ggstats.com/proto/matches;matchespb";
 
 message Match {
@@ -13,21 +15,22 @@ message Match {
 }
 
 message GetMatchesRequest {
-    string record_id = 1;
-    string record_type = 2;
+  string record_id   = 1;
+  string record_type = 2;
 }
 
 message GetMatchesResponse {
-    repeated Match matches = 1;
+  repeated Match matches = 1;
 }
 
 message PutMatchRequest {
-    Match match = 1;
+  Match match = 1;
 }
 
 message PutMatchResponse {}
+// You can add a created match echo later if you want
 
 service MatchesService {
-    rpc GetMatches(GetMatchesRequest) returns (GetMatchesResponse);
-    rpc PutMatch(PutMatchRequest) returns (PutMatchResponse);
+  rpc GetMatches(GetMatchesRequest) returns (GetMatchesResponse);
+  rpc PutMatch(PutMatchRequest) returns (PutMatchResponse);
 }

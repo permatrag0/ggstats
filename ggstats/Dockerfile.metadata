@@ -1,15 +1,15 @@
-FROM golang:1.25 AS builder
+FROM golang:1.24.6 AS builder
 
 WORKDIR /app
 COPY . .
 RUN go mod tidy
 
-WORKDIR /app/metadata/cmd/main
-RUN go build -o /app/metadata/metadata .
+WORKDIR /app/metadata/cmd/grpc
+RUN go build -o /app/metadata-grpc .
 
 FROM debian:bookworm-slim
 WORKDIR /app
-COPY --from=builder /app/metadata/metadata .
+COPY --from=builder /app/metadata-grpc .
 
-EXPOSE 8081
-CMD ["./metadata"]
+EXPOSE 50051
+CMD ["./metadata-grpc"]
